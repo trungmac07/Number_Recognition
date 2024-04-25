@@ -1,82 +1,91 @@
 from tkinter import *
-from tkinter import ttk, colorchooser
-from PIL import ImageGrab
-
+from PIL import ImageGrab, Image, ImageTk 
 import numpy as np
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
+import torchvision.transforms as T
+from IntGrad import *
 
 class GUI:
-
-    def __init__(self,master,model):
+    def __init__(self, master, model, explainer):
         self.prediction = StringVar()
         self.prediction.set("Prediction")
         self.model = model
+        self.explainer = explainer
         self.img = None
+        self.saliency_map = ImageTk.PhotoImage(T.ToPILImage()(torch.ones((284,284))))
         self.master = master
         self.color_fg = 'white'
         self.color_bg = 'black'
         self.old_x = None
         self.old_y = None
-        self.penwidth = 27
+        self.penwidth = 30
         self.drawWidgets()
-        self.c.bind('<B1-Motion>',self.paint)#drwaing the line 
-        self.c.bind('<ButtonRelease-1>',self.reset)
+        self.c.bind('<B1-Motion>', self.paint)
+        self.c.bind('<ButtonRelease-1>', self.reset)
 
-    def paint(self,e):
+    def paint(self, e):
         if self.old_x and self.old_y:
-            self.c.create_line(self.old_x,self.old_y,e.x,e.y,width=self.penwidth,fill=self.color_fg,capstyle=ROUND,smooth=True)
+            self.c.create_line(self.old_x, self.old_y, e.x, e.y, width=self.penwidth, fill=self.color_fg, capstyle=ROUND, smooth=True)
 
         self.old_x = e.x
         self.old_y = e.y
 
-        
-
     def save(self):
-        # Get Canvas Widget Coordinates
         x = self.c.winfo_rootx()
         y = self.c.winfo_rooty()
         x1 = x + self.c.winfo_width()
         y1 = y + self.c.winfo_height()
-        
-        # Capture and Save the Image from the Canvas
-        self.img = torch.tensor([np.array(ImageGrab.grab().crop((x, y, x1, y1)).convert("L"))],dtype=torch.float)
-        print(self.img.shape)
+        self.img = torch.tensor([np.array(ImageGrab.grab().crop((x, y, x1, y1)).convert("L"))], dtype=torch.float)/255.0
         self.prediction.set("Prediction: " + str(int(self.model.predict(self.img)[0])))
-        print(self.prediction)    
 
-    def reset(self,e):    #reseting or cleaning the canvas 
+    def reset(self, e):
         self.old_x = None
-        self.old_y = None    
-        self.save()  
-        
+        self.old_y = None
+        self.save()
+
+    def explain(self):
+        self.saliency_map = self.explainer.explain(self.img, step = 200)
+        self.saliency_map = T.ToPILImage()(self.saliency_map)
+        self.saliency_map = T.Resize((284,284))(self.saliency_map)
+        self.saliency_map = ImageTk.PhotoImage(self.saliency_map)
+        self.explanation_label.configure(image=self.saliency_map)
+        self.explanation_label.image = self.saliency_map
 
     def clear(self):
         self.c.delete(ALL)
         self.prediction.set("Prediction")
 
     def drawWidgets(self):
-    
-        self.controls = Frame(self.master,padx = 5,pady = 5)
-    
-        l3 = Label(self.controls, textvariable = self.prediction,font=('arial 15'), anchor=NW)
-        l3.grid(row=1,column=0)
-        self.controls.pack(side=LEFT)
-        
-        self.c = Canvas(self.master,width=276,height=276,bg=self.color_bg)
-        self.c.pack(fill=BOTH,expand=True)
+        # Main Frame
+        self.main_frame = Frame(self.master)
+        self.main_frame.pack(fill=BOTH, expand=True)
 
-        btn = Button ( self.master, command = self.clear,text="Clear")
-        btn.place(x=0,y=50,width=100,height=30)
+        # Canvas
+        self.c = Canvas(self.main_frame, width=280, height=280, bg=self.color_bg)
+        self.c.pack(side=LEFT, fill='none', expand=False)
 
-        menu = Menu(self.master)
-        self.master.config(menu=menu)
- 
-        optionmenu = Menu(menu)
-        menu.add_cascade(label='Options',menu=optionmenu)
-        optionmenu.add_command(label='Clear Canvas',command=self.clear)
-        optionmenu.add_command(label='Exit',command=self.master.destroy) 
-        
-        
+        # Controls Frame
+        self.controls_frame = Frame(self.main_frame, padx=10, pady=10)
+        self.controls_frame.pack(fill=BOTH, expand=True)
+
+        # Explanation Image Placeholder
+        explanation_image = self.saliency_map # Path to your image
+        self.explanation_label = Label(self.controls_frame, image=explanation_image )
+        self.explanation_label.image = explanation_image  # Keep a reference to avoid garbage collection
+        self.explanation_label.pack(pady=10, side=RIGHT)
+
+        # Prediction Label
+        l3 = Label(self.controls_frame, textvariable=self.prediction, font=('Arial', 15), width=10, justify='left')
+        l3.pack(side=LEFT, pady=10)
+
+        # Clear Button
+        btn = Button(self.controls_frame, text="Clear", command=self.clear)
+        btn.pack(side=BOTTOM, pady=10, padx=10)
+
+        # Explainer Button
+        btn2 = Button(self.controls_frame, text="Explain", command=self.explain)
+        btn2.pack(side=LEFT, pady=10, padx=10)
+      
+
+
 
