@@ -54,8 +54,18 @@ class CNN(nn.Module):
             img = img.unsqueeze(0)
 
         y_pred = F.softmax(self.forward(img))
-        print(y_pred)
+
         return torch.max(y_pred,1)[1]
+    
+    def probability_array(self,x):
+        img = torchvision.transforms.Resize((28,28))(x)
+        
+        if(len(img.size()) <= 4):
+            img = img.unsqueeze(0)
+
+        y_pred = F.softmax(self.forward(img))
+
+        return y_pred.squeeze().detach().numpy()
     
 
 def fit(model, data, device = 'cpu'):

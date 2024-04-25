@@ -9,7 +9,7 @@ cnn = CNN()
 cnn.load_state_dict(torch.load(model_path))
 cnn.eval()
 
-ig = IntergratedGradient(cnn) 
+ig = IntegratedGradient(cnn) 
 
 if __name__ == '__main__':
     root = Tk()

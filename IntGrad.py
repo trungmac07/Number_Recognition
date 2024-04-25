@@ -3,7 +3,7 @@ import torchvision.transforms
 import matplotlib.pyplot as plt
 import torch.nn as nn
 import torch.nn.functional as F
-class IntergratedGradient:
+class IntegratedGradient:
     def __init__(self, model, img_size=(28,28), find_baseline=True):
         self.model = model
         self.img_size = img_size
