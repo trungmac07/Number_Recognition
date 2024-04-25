@@ -2,15 +2,10 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <h1 align="center">Face Aging Model Using StarGAN</h1>
+  <h1 align="center">Handwritten number recognition using CNN model</h1>
 </div>
 
-## Group Information
-Group 1 - 21KHMT
-- 21127007 - Nguyễn Quốc Anh
-- 21127099 - Nguyễn Tấn Lộc
-- 21127403 - Nguyễn Minh Quân
-- 21127462 - Mạc Tuấn Trung 
+
 
 
 <!-- ABOUT THE PROJECT -->
@@ -58,8 +53,7 @@ The UI is simple. Draw your number (from 0 to 9) to the left board and the model
 <!-- CONTACT -->
 ## Contact
 
-Email:
-- mttrung16@gmail.com
+Email: mttrung16@gmail.com
 
 Project Link: [https://github.com/trungmac07/Number_Recognition](https://github.com/trungmac07/Number_Recognition)
 
