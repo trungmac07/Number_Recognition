@@ -47,7 +47,5 @@ class IntergratedGradient:
         max_val = torch.max(saliency_map)
 
         saliency_map = 1/(max_val - min_val) * (saliency_map - min_val) 
-        print(min_val, max_val)
-        
-        #print(saliency_map)
+
         return saliency_map.squeeze()
