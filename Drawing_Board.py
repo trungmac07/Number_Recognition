@@ -41,7 +41,7 @@ class GUI:
         self.prediction.set("Prediction: " + str(int(self.model.predict(self.img)[0])))
         
         self.draw_bar_chart(self.model.probability_array(self.img))
-        print(self.model.probability_array(self.img))
+        #print(self.model.probability_array(self.img))
         bar_chart_image = Image.open('bar_chart.png')
         bar_chart_image = ImageTk.PhotoImage(bar_chart_image)
         self.bar_chart_label.configure(image=bar_chart_image)
@@ -54,7 +54,8 @@ class GUI:
         self.save()
 
     def explain(self):
-        self.saliency_map = self.explainer.explain(self.img, step=200)
+        img = torchvision.transforms.Resize((28,28))(self.img)
+        self.saliency_map = self.explainer.explain(img, step=100).squeeze()
         self.saliency_map = T.ToPILImage()(self.saliency_map)
         self.saliency_map = T.Resize((284, 284))(self.saliency_map)
         self.saliency_map = ImageTk.PhotoImage(self.saliency_map)
