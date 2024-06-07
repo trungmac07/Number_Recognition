@@ -5,7 +5,9 @@
   <h1 align="center">Handwritten number recognition using CNN model</h1>
 </div>
 
-!["Number_recognition"](./resource/number_recognition.png)
+<div align="center">
+  <img src="./resource/number_recognition.png"/>
+</div>
 
 
 <!-- ABOUT THE PROJECT -->
